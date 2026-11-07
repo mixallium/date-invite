@@ -68,10 +68,10 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      padding: 28px 14px 36px;
+      padding: 28px 18px 36px;
     }
     .shell {
-      width: min(100%, 720px);
+      width: min(100%, 560px);
       position: relative;
     }
     .paper {
@@ -402,7 +402,7 @@
       <section class="paper">
         <div id="app"></div>
       </section>
-      <div class="footer-note">ретро-открытка · 18 ноября · театр</div>
+      
     </div>
   </main>
 
@@ -419,7 +419,7 @@
         'assets/images/bg05.jpg',
         'assets/images/bg06.jpg'
       ],
-      poster: 'assets/images/poster.jpg',
+      poster: 'assets/images/event-cover.jpg',
       collageFrames: [
         'assets/images/frame01.jpg',
         'assets/images/frame02.jpg',
@@ -436,40 +436,40 @@
         { value: 'tired', emoji: '🥱', title: 'Сонное', sub: 'Нужен повод выбраться в красивый вечер.' }
       ],
       future: [
-        { value: 'yes', emoji: '💌', title: 'Да', sub: 'Планируем вечер среды 18 ноября.' },
-        { value: 'maybe', emoji: '🤍', title: 'Пока не знаю', sub: 'Но письмо всё равно дочитаем до конца.' }
+        { value: 'yes', emoji: '💌', title: 'Да', sub: '' },
+        { value: 'maybe', emoji: '🤍', title: 'Пока не знаю', sub: '' }
       ],
       meetTime: [
-        { value: '15:00', emoji: '🕒', title: '15:00', sub: 'С запасом на прогулку и разговор.' },
-        { value: '16:00', emoji: '🕓', title: '16:00', sub: 'Спокойно успеваем ко всему.' },
-        { value: '17:00', emoji: '🕔', title: '17:00', sub: 'Почти перед спектаклем, но ещё есть время.' },
-        { value: 'theatre', emoji: '🎭', title: 'У театра в 17:50', sub: 'Сразу ко входу, ближе к началу.' }
+        { value: '15:00', emoji: '🕒', title: '15', sub: '' },
+        { value: '16:00', emoji: '🕓', title: '16', sub: '' },
+        { value: '17:00', emoji: '🕔', title: '17', sub: '' },
+        { value: 'theatre', emoji: '🎭', title: 'у театра в 17:50', sub: '' }
       ],
       eat: [
-        { value: 'yes', emoji: '🍽️', title: 'Да', sub: 'Зайдём куда-нибудь до спектакля.' },
-        { value: 'no', emoji: '🚶', title: 'Нет', sub: 'Тогда держим курс сразу на театр.' }
+        { value: 'yes', emoji: '🍽️', title: 'Да', sub: '' },
+        { value: 'no', emoji: '🚶', title: 'Нет', sub: '' }
       ],
       place: [
-        { value: 'mao', emoji: '🥢', title: 'Мао', sub: 'Проверенный вариант.' },
-        { value: 'true-price', emoji: '🍲', title: 'Тру Прайс', sub: 'Простой и понятный план.' },
-        { value: 'custom', emoji: '✍️', title: 'Свой выбор', sub: 'Можно вписать своё место.' },
-        { value: 'secret', emoji: '🗝️', title: 'Секретное место', sub: 'Пусть это останется интригой.' }
+        { value: 'mao', emoji: '🥢', title: 'Мао', sub: '' },
+        { value: 'true-price', emoji: '🍲', title: 'Тру прайс', sub: '' },
+        { value: 'custom', emoji: '✍️', title: 'Свой выбор', sub: '' },
+        { value: 'secret', emoji: '🗝️', title: 'Секретное место', sub: '' }
       ],
       clothes: [
-        { value: 'formal', emoji: '👗', title: 'Формальная', sub: 'Рубашки, платья, более собранный образ.' },
-        { value: 'casual', emoji: '🧥', title: 'Повседневная', sub: 'Как комфортно и без лишнего напряжения.' }
+        { value: 'formal', emoji: '👗', title: 'Формальная', sub: 'рубашки, платья, блеск, все в обмороке' },
+        { value: 'casual', emoji: '🧥', title: 'Повседневная', sub: 'легко и удобно' }
       ],
       gift: [
-        { value: 'tasty', emoji: '🍫', title: 'Вкусный', sub: 'Что-то, что можно съесть с удовольствием.' },
-        { value: 'beautiful', emoji: '🌹', title: 'Красивый', sub: 'Вещь ради впечатления.' },
-        { value: 'minimal', emoji: '🎁', title: 'Минималистичный', sub: 'Небольшой и аккуратный.' },
-        { value: 'favorit', emoji: '🤷', title: 'Ну он же покупает тебя, думай, думай', sub: 'Подарок будет на усмотрение фаворита.' }
+        { value: 'tasty', emoji: '🍫', title: 'Вкусный', sub: '' },
+        { value: 'beautiful', emoji: '🌹', title: 'Красивый', sub: '' },
+        { value: 'minimal', emoji: '🎁', title: 'Минималистичный', sub: '' },
+        { value: 'favorit', emoji: '🤷', title: '“Ну он же тебя покупает, думай, думай”', sub: '' }
       ],
       moodEnd: [
-        { value: 'warm', emoji: '😊', title: 'Теплее', sub: 'Уже как-то приятнее и уютнее.' },
-        { value: 'intrigued', emoji: '😉', title: 'Заинтригованное', sub: 'Хочется узнать, что будет дальше.' },
-        { value: 'happy', emoji: '😄', title: 'Хорошее', sub: 'План на вечер начинает нравиться.' },
-        { value: 'sparkling', emoji: '✨', title: 'Очень хорошее', sub: 'Вечер уже ощущается особенным.' }
+        { value: 'warm', emoji: '😊', title: 'Теплее', sub: '' },
+        { value: 'intrigued', emoji: '😉', title: 'Заинтригованное', sub: '' },
+        { value: 'happy', emoji: '😄', title: 'Хорошее', sub: '' },
+        { value: 'sparkling', emoji: '✨', title: 'Очень хорошее', sub: '' }
       ]
     };
 
@@ -634,7 +634,7 @@
 
     function renderEvent() {
       app.innerHTML = `
-        ${frame('Времяпровождение', { emoji: '🎟️', text: 'Небольшой план на 18 ноября' }, 'Мне кажется, я смотрел этот спектакль лет 10 назад и потом хотел пересмотреть. Хочешь составить компанию?')}
+        ${frame('Времяпровождение', { emoji: '🎟️', text: 'Небольшой план на 18 ноября' }, 'Мне кажется, я смотрел этот спектакль лет 10 назад и потом хотел пересмотреть. Пойдешь со мной?)')}
         <div class="info-card">
           <h3>«Империя ангелов»</h3>
           <div class="event-meta">
@@ -645,7 +645,7 @@
           </div>
           <a class="event-link" href="${EVENT_LINK}" target="_blank" rel="noopener noreferrer">Открыть страницу спектакля</a>
           <div class="poster-line">
-            <img class="mini-poster" src="${ASSETS.poster}" alt="Афиша в ретро-стиле" />
+            <img class="mini-poster" src="${ASSETS.poster}" alt="Обложка Империя ангелов" />
             <div class="helper">Ссылка остаётся кликабельной, так что при желании можно посмотреть детали события отдельно.</div>
           </div>
         </div>
@@ -726,9 +726,9 @@
 
     function renderMessage() {
       app.innerHTML = `
-        ${frame('Последний штрих', { emoji: '✍️', text: 'Что-то от себя' }, 'Если хочется, можно оставить пару строк в ответ. Этот текст тоже попадёт в коллаж.')}
+        ${frame('Последний штрих', { emoji: '✍️', text: 'Что-то от себя' }, 'впечатления, пожелания, угрозы?')}
         <textarea id="note" placeholder="Напиши что-нибудь от себя">${esc(state.note)}</textarea>
-        <p class="helper">Поле не обязательное.</p>
+        <p class="helper">поле необязательное</p>
         <div class="nav">
           <button class="btn btn-sub btn-back" type="button" id="back">←</button>
           <button class="btn btn-main" type="button" id="next">Собрать коллаж</button>
@@ -845,7 +845,7 @@
             chip: 'Организация вечера',
             emoji: '🕰️',
             title: 'Во сколько встретиться?',
-            subtitle: 'Выбери удобное время. Один вариант — сразу у театра в 17:50.',
+            subtitle: 'Если встретимся пораньше - успеем больше)',
             options: OPTIONS.meetTime
           });
           break;
@@ -855,7 +855,7 @@
             chip: 'До спектакля',
             emoji: '🍽️',
             title: 'Хочешь зайти покушать до спектакля?',
-            subtitle: 'Этот вопрос показывается, если встречаемся раньше, чем у театра в 17:50.',
+            subtitle: '',
             options: OPTIONS.eat
           });
           break;
@@ -868,9 +868,10 @@
             chip: 'Дресс-код',
             emoji: '👔',
             title: 'Что по одежде?',
-            subtitle: 'Можно выбрать более формальный или повседневный вариант.',
+            subtitle: 'будем понтоваться или по простому?)',
             options: OPTIONS.clothes
           });
+          { const nav = app.querySelector('.nav'); if (nav) nav.insertAdjacentHTML('beforebegin', '<p class="helper">Ты красивая всегда)</p>'); }
           break;
         case 'palette':
           renderPalette();
@@ -881,9 +882,10 @@
             chip: 'Подарок от фаворита',
             emoji: '🎁',
             title: 'Какой вариант подарка ближе?',
-            subtitle: 'Скорее как подсказка по настроению, чем строгий выбор.',
+            subtitle: '',
             options: OPTIONS.gift
           });
+          { const nav = app.querySelector('.nav'); if (nav) nav.insertAdjacentHTML('beforebegin', '<p class="helper">Я все равно что-то притащу)</p>'); }
           break;
         case 'mood2':
           renderChoiceStep({
@@ -891,7 +893,7 @@
             chip: 'После всего этого',
             emoji: '✨',
             title: 'Настроение теперь?',
-            subtitle: 'Те же четыре клика, только уже после письма и плана вечера.',
+            subtitle: 'улучшилось?)',
             options: OPTIONS.moodEnd
           });
           break;
@@ -1001,7 +1003,7 @@
       ctx.fillStyle = '#3b241f';
       ctx.font = 'italic 30px Georgia';
       let y = 330;
-      y = drawWrappedText(ctx, '«Мне кажется, я смотрел этот спектакль лет 10 назад и потом хотел пересмотреть. Хочешь составить компанию?»', 120, y, 840, 42, 4);
+      y = drawWrappedText(ctx, '«Мне кажется, я смотрел этот спектакль лет 10 назад и потом хотел пересмотреть. Пойдешь со мной?)»', 120, y, 840, 42, 4);
 
       const cardX = 120;
       const cardW = 840;
@@ -1048,9 +1050,9 @@
 
       const frames = [frame1, frame2, frame3];
       const framePos = [
-        { x: 132, y: 1240, w: 220, h: 160, rot: -0.08 },
-        { x: 425, y: 1218, w: 230, h: 170, rot: 0.04 },
-        { x: 705, y: 1245, w: 220, h: 160, rot: 0.09 }
+        { x: 105, y: 1188, w: 255, h: 190, rot: -0.08 },
+        { x: 410, y: 1162, w: 268, h: 200, rot: 0.04 },
+        { x: 715, y: 1192, w: 255, h: 190, rot: 0.09 }
       ];
 
       framePos.forEach((pos, i) => {
@@ -1074,9 +1076,6 @@
         ctx.restore();
       });
 
-      ctx.fillStyle = '#6f4a3e';
-      ctx.font = '20px Georgia';
-      ctx.fillText('ретро-открытка · театр · 18 ноября', 120, 1440);
     }
 
     function downloadCanvas() {
@@ -1135,6 +1134,17 @@
       });
     }
 
+
+    async function tryAutoplay() {
+      try {
+        audio.volume = 0.65;
+        await audio.play();
+        musicToggle.textContent = '❚❚ Выключить музыку';
+      } catch (error) {
+        musicToggle.textContent = '♪ Включить музыку';
+      }
+    }
+
     musicToggle.addEventListener('click', async () => {
       try {
         if (audio.paused) {
@@ -1150,6 +1160,7 @@
     });
 
     render();
+    tryAutoplay();
   </script>
 </body>
 </html>
