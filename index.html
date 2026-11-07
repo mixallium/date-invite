@@ -74,6 +74,9 @@
       width: min(100%, 560px);
       position: relative;
     }
+    .shell.final-wide { width: min(100%, 950px); }
+    .shell.final-wide .paper { padding: clamp(18px, 3.2vw, 34px); }
+    .shell.final-wide .canvas-wrap { padding: clamp(5px, 1.8vw, 14px); }
     .paper {
       position: relative;
       overflow: hidden;
@@ -754,15 +757,9 @@
     function summaryHTML() {
       return `
         <div class="summary-list">
-          <div class="summary-item"><span><strong>Настроение в начале</strong></span><span>${esc(moodLabel('moodStart', state.moodStart))}</span></div>
-          <div class="summary-item"><span><strong>Готовность планировать</strong></span><span>${esc(futureLabel())}</span></div>
           <div class="summary-item"><span><strong>Встреча</strong></span><span>${esc(state.meetTime === 'theatre' ? 'У театра в 17:50' : state.meetTime || '—')}</span></div>
-          <div class="summary-item"><span><strong>До спектакля</strong></span><span>${esc(eatLabel())}</span></div>
-          ${state.eat === 'yes' && state.meetTime !== 'theatre' ? `<div class="summary-item"><span><strong>Место</strong></span><span>${esc(placeLabel())}</span></div>` : ''}
-          <div class="summary-item"><span><strong>Одежда</strong></span><span>${esc(clothesLabel())}</span></div>
-          ${state.clothes === 'formal' && state.palette.trim() ? `<div class="summary-item"><span><strong>Цветовая гамма</strong></span><span>${esc(state.palette.trim())}</span></div>` : ''}
-          <div class="summary-item"><span><strong>Подарок</strong></span><span>${esc(giftLabel())}</span></div>
           <div class="summary-item"><span><strong>Настроение теперь</strong></span><span>${esc(moodLabel('moodEnd', state.moodEnd))}</span></div>
+          ${state.note.trim() ? `<div class="summary-item"><span><strong>Что-то от себя</strong></span><span style="white-space:pre-wrap;overflow-wrap:anywhere;text-align:right">${esc(state.note.trim())}</span></div>` : ''}
         </div>
       `;
     }
@@ -773,14 +770,13 @@
         <div class="summary-card">
           <h3>Краткий итог</h3>
           ${summaryHTML()}
-          ${state.note.trim() ? `<div class="info-card" style="margin-top:16px"><strong>Что-то от себя</strong><p style="margin-top:10px; line-height:1.6">${esc(state.note.trim())}</p></div>` : ''}
         </div>
         <div class="canvas-wrap">
-          <canvas id="collageCanvas" width="1300" height="2050" aria-label="Финальный коллаж"></canvas>
+          <canvas id="collageCanvas" width="1300" height="2450" aria-label="Финальный коллаж"></canvas>
         </div>
         <div class="actions-grid">
-          <button class="btn btn-main" type="button" id="download">Скачать коллаж</button>
-          <button class="btn btn-sub" type="button" id="share">Поделиться</button>
+          <button class="btn btn-main" type="button" id="download" disabled>Скачать коллаж</button>
+          <button class="btn btn-sub" type="button" id="share" disabled>Поделиться</button>
           <button class="btn btn-sub" type="button" id="restart">Пройти заново</button>
         </div>
         <div class="nav">
@@ -812,6 +808,7 @@
     function render() {
       setBackground();
       const step = currentStep();
+      document.querySelector('.shell').classList.toggle('final-wide', step === 'finish');
       switch (step) {
         case 'mood1':
           renderChoiceStep({
@@ -914,29 +911,39 @@
       ctx.closePath();
     }
 
-    function drawWrappedText(ctx, text, x, y, maxWidth, lineHeight, maxLines = 5) {
-      if (!text) return y;
-      const words = text.split(/\s+/);
-      let line = '';
-      let lineCount = 0;
-      for (let i = 0; i < words.length; i++) {
-        const test = line ? `${line} ${words[i]}` : words[i];
-        if (ctx.measureText(test).width > maxWidth && line) {
-          ctx.fillText(line, x, y);
-          line = words[i];
-          y += lineHeight;
-          lineCount += 1;
-          if (lineCount >= maxLines - 1) break;
-        } else {
-          line = test;
+    function wrapCanvasLines(ctx, text, maxWidth) {
+      const paragraphs = String(text || '').replace(/\r\n?/g, '\n').split('\n');
+      const result = [];
+      for (const paragraph of paragraphs) {
+        const words = paragraph.trim().split(/\s+/).filter(Boolean);
+        if (!words.length) { result.push(''); continue; }
+        let line = '';
+        for (let word of words) {
+          if (ctx.measureText(word).width > maxWidth) {
+            if (line) { result.push(line); line = ''; }
+            let portion = '';
+            for (const char of word) {
+              if (portion && ctx.measureText(portion + char).width > maxWidth) {
+                result.push(portion);
+                portion = char;
+              } else portion += char;
+            }
+            line = portion;
+            continue;
+          }
+          if (line && ctx.measureText(line + ' ' + word).width > maxWidth) {
+            result.push(line);
+            line = word;
+          } else line = line ? `${line} ${word}` : word;
         }
+        if (line) result.push(line);
       }
-      if (lineCount < maxLines) {
-        const finalText = lineCount === maxLines - 1 && words.length > 0 ? line : line;
-        ctx.fillText(finalText, x, y);
-        y += lineHeight;
-      }
-      return y;
+      return result;
+    }
+
+    function printCanvasLines(ctx, lines, x, y, lineHeight) {
+      lines.forEach((line, i) => ctx.fillText(line, x, y + i * lineHeight));
+      return y + lines.length * lineHeight;
     }
 
     function loadImage(src) {
@@ -948,32 +955,69 @@
       });
     }
 
+    // Fit the entire source image into its rectangle; never crop it.
+    function drawContainedImage(ctx, img, rect, bg = '#eee2d2') {
+      roundedRect(ctx, rect.x, rect.y, rect.w, rect.h, 24);
+      ctx.fillStyle = bg;
+      ctx.fill();
+      ctx.save();
+      roundedRect(ctx, rect.x, rect.y, rect.w, rect.h, 24);
+      ctx.clip();
+      const ratio = Math.min(rect.w / img.width, rect.h / img.height);
+      const w = img.width * ratio;
+      const h = img.height * ratio;
+      ctx.drawImage(img, rect.x + (rect.w - w) / 2, rect.y + (rect.h - h) / 2, w, h);
+      ctx.restore();
+      ctx.strokeStyle = 'rgba(111,74,62,0.18)';
+      ctx.lineWidth = 2;
+      roundedRect(ctx, rect.x, rect.y, rect.w, rect.h, 24);
+      ctx.stroke();
+    }
+
     async function drawCollage() {
       const canvas = document.getElementById('collageCanvas');
       if (!canvas) return;
-      const ctx = canvas.getContext('2d');
       const [bgImg, handsImg, movieCollage] = await Promise.all([
         loadImage(ASSETS.backgrounds[0]),
         loadImage(ASSETS.handsPhoto),
         loadImage(ASSETS.movieCollage)
       ]);
+      // A dynamic PNG height prevents long free-text replies from being cut off.
+      const ctx = canvas.getContext('2d');
+      const x = 90, contentWidth = 1120;
+      ctx.font = 'italic 33px Georgia';
+      const phrase1 = wrapCanvasLines(ctx, 'Надеюсь, что ты будешь махать рукой!', contentWidth);
+      const phrase2 = wrapCanvasLines(ctx, 'И все это можно назвать как угодно - изберательной вселенной, сродными душами, кармой. Главное, что это очень приятно)', contentWidth);
+      let y = 310 + phrase1.length * 45 + 15 + phrase2.length * 45 + 24;
+      const handRect = { x: 90, y, w: 1120, h: 650 };
+      y = handRect.y + handRect.h + 54;
+      const answerRows = [
+        ['Встреча', state.meetTime === 'theatre' ? 'У театра в 17:50' : (state.meetTime || '—')],
+        ['Настроение теперь', moodLabel('moodEnd', state.moodEnd)],
+        ...(state.note.trim() ? [['Что-то от себя', state.note.trim()]] : [])
+      ];
+      const rows = answerRows.map(([label, value]) => {
+        ctx.font = '27px Georgia';
+        const lines = wrapCanvasLines(ctx, value, contentWidth - 32);
+        const height = 37 + lines.length * 37 + 26;
+        const row = { label, lines, y, height };
+        y += height;
+        return row;
+      });
+      const movieRatio = movieCollage.height / movieCollage.width;
+      const movieRect = { x: 90, y: y + 28, w: 1120, h: Math.round(1120 * movieRatio) };
+      const totalHeight = Math.ceil(movieRect.y + movieRect.h + 110);
+      canvas.width = 1300;
+      canvas.height = totalHeight;
 
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
       const ratio = Math.max(canvas.width / bgImg.width, canvas.height / bgImg.height);
-      const bw = bgImg.width * ratio;
-      const bh = bgImg.height * ratio;
-      const bx = (canvas.width - bw) / 2;
-      const by = (canvas.height - bh) / 2;
-      ctx.drawImage(bgImg, bx, by, bw, bh);
-
-      const overlay = ctx.createLinearGradient(0, 0, 0, canvas.height);
-      overlay.addColorStop(0, 'rgba(31,18,15,0.48)');
-      overlay.addColorStop(1, 'rgba(31,18,15,0.62)');
-      ctx.fillStyle = overlay;
+      ctx.drawImage(bgImg, (canvas.width - bgImg.width * ratio) / 2,
+        (canvas.height - bgImg.height * ratio) / 2,
+        bgImg.width * ratio, bgImg.height * ratio);
+      ctx.fillStyle = 'rgba(31,18,15,0.60)';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-      roundedRect(ctx, 50, 50, 1200, 1950, 46);
-      ctx.fillStyle = 'rgba(250, 241, 228, 0.95)';
+      roundedRect(ctx, 38, 38, 1224, totalHeight - 76, 42);
+      ctx.fillStyle = 'rgba(250,241,228,.97)';
       ctx.fill();
       ctx.strokeStyle = 'rgba(111,74,62,0.20)';
       ctx.lineWidth = 2;
@@ -981,88 +1025,44 @@
 
       ctx.fillStyle = '#8e4f5b';
       ctx.font = '28px Georgia';
-      ctx.fillText('Письмо о далёком будущем', 95, 115);
-
+      ctx.fillText('Письмо о далёком будущем', x, 116);
       ctx.fillStyle = '#2f1d19';
       ctx.font = 'bold 58px Georgia';
-      ctx.fillText('18 ноября', 95, 175);
-
+      ctx.fillText('18 ноября', x, 180);
       ctx.fillStyle = '#5f443b';
-      ctx.font = '30px Georgia';
-      ctx.fillText('Спектакль «Империя ангелов» · 18:00', 95, 220);
-
+      ctx.font = '29px Georgia';
+      ctx.fillText('Спектакль «Империя ангелов» · 18:00', x, 224);
       ctx.strokeStyle = 'rgba(111,74,62,0.18)';
       ctx.beginPath();
-      ctx.moveTo(95, 245);
-      ctx.lineTo(1160, 245);
+      ctx.moveTo(x, 248);
+      ctx.lineTo(x + contentWidth, 248);
       ctx.stroke();
 
       ctx.fillStyle = '#3b241f';
-      ctx.font = 'italic 34px Georgia';
-      let y = 305;
-      y = drawWrappedText(ctx, 'Надеюсь, что ты будешь махать рукой!', 95, y, 1060, 44, 3);
-      y += 10;
-      y = drawWrappedText(ctx, 'И все это можно назвать как угодно - изберательной вселенной, сродными душами, кармой. Главное, что это очень приятно)', 95, y, 1060, 44, 5);
+      ctx.font = 'italic 33px Georgia';
+      let textY = 310;
+      textY = printCanvasLines(ctx, phrase1, x, textY, 45) + 15;
+      printCanvasLines(ctx, phrase2, x, textY, 45);
+      drawContainedImage(ctx, handsImg, handRect);
 
-      const handBox = { x: 95, y: y + 20, w: 1110, h: 400 };
-      roundedRect(ctx, handBox.x, handBox.y, handBox.w, handBox.h, 28);
-      ctx.save();
-      ctx.clip();
-      const hr = Math.max(handBox.w / handsImg.width, handBox.h / handsImg.height);
-      const hw = handsImg.width * hr;
-      const hh = handsImg.height * hr;
-      ctx.drawImage(handsImg, handBox.x + (handBox.w - hw) / 2, handBox.y + (handBox.h - hh) / 2, hw, hh);
-      ctx.restore();
-      ctx.strokeStyle = 'rgba(111,74,62,0.12)';
-      roundedRect(ctx, handBox.x, handBox.y, handBox.w, handBox.h, 28);
-      ctx.stroke();
-
-      const lines = [
-        ['Настроение в начале', moodLabel('moodStart', state.moodStart)],
-        ['Готовность планировать', futureLabel()],
-        ['Встреча', state.meetTime === 'theatre' ? 'У театра в 17:50' : (state.meetTime || '—')],
-        ['До спектакля', eatLabel()],
-        ...(state.eat === 'yes' && state.meetTime !== 'theatre' ? [['Место', placeLabel()]] : []),
-        ['Одежда', clothesLabel()],
-        ...(state.clothes === 'formal' && state.palette.trim() ? [['Цветовая гамма', state.palette.trim()]] : []),
-        ['Подарок', giftLabel()],
-        ['Настроение теперь', moodLabel('moodEnd', state.moodEnd)],
-        ...(state.note.trim() ? [['Что-то от себя', state.note.trim()]] : [])
-      ];
-
-      let blockY = handBox.y + handBox.h + 60;
-      const labelX = 95;
-      const valueX = 420;
-      const lineW = 1065;
-      lines.forEach(([label, value]) => {
-        ctx.fillStyle = '#6a4a40';
-        ctx.font = 'bold 24px Georgia';
-        ctx.fillText(label, labelX, blockY);
-        ctx.fillStyle = '#241613';
-        ctx.font = '24px Georgia';
-        const afterY = drawWrappedText(ctx, value, valueX, blockY, 700, 32, label === 'Что-то от себя' ? 4 : 2);
-        const bottomLineY = Math.max(blockY + 12, afterY - 8);
-        ctx.strokeStyle = 'rgba(111,74,62,0.14)';
+      for (const row of rows) {
+        ctx.fillStyle = '#8e4f5b';
+        ctx.font = 'bold 25px Georgia';
+        ctx.fillText(row.label, x, row.y);
+        ctx.fillStyle = '#291b17';
+        ctx.font = '27px Georgia';
+        printCanvasLines(ctx, row.lines, x, row.y + 42, 37);
+        ctx.strokeStyle = 'rgba(111,74,62,0.16)';
         ctx.beginPath();
-        ctx.moveTo(labelX, bottomLineY);
-        ctx.lineTo(labelX + lineW, bottomLineY);
+        ctx.moveTo(x, row.y + row.height - 13);
+        ctx.lineTo(x + contentWidth, row.y + row.height - 13);
         ctx.stroke();
-        blockY = bottomLineY + 30;
-      });
-
-      const collageY = blockY + 18;
-      const collageBox = { x: 95, y: collageY, w: 1110, h: 380 };
-      roundedRect(ctx, collageBox.x, collageBox.y, collageBox.w, collageBox.h, 24);
-      ctx.save();
-      ctx.clip();
-      const cr = Math.max(collageBox.w / movieCollage.width, collageBox.h / movieCollage.height);
-      const cw = movieCollage.width * cr;
-      const ch = movieCollage.height * cr;
-      ctx.drawImage(movieCollage, collageBox.x + (collageBox.w - cw) / 2, collageBox.y + (collageBox.h - ch) / 2, cw, ch);
-      ctx.restore();
-      ctx.strokeStyle = 'rgba(111,74,62,0.12)';
-      roundedRect(ctx, collageBox.x, collageBox.y, collageBox.w, collageBox.h, 24);
-      ctx.stroke();
+      }
+      drawContainedImage(ctx, movieCollage, movieRect);
+      const downloadButton = document.getElementById('download');
+      const shareButton = document.getElementById('share');
+      if (downloadButton) downloadButton.disabled = false;
+      if (shareButton) shareButton.disabled = false;
     }
 
     function downloadCanvas() {
