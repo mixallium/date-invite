@@ -420,20 +420,16 @@
         'assets/images/bg06.jpg'
       ],
       poster: 'assets/images/event-cover.jpg',
-      collageFrames: [
-        'assets/images/frame01.jpg',
-        'assets/images/frame02.jpg',
-        'assets/images/frame03.jpg',
-        'assets/images/frame04.jpg'
-      ]
+      movieCollage: 'assets/images/movie-collage.jpg',
+      handsPhoto: 'assets/images/hands-bracelets.png'
     };
 
     const OPTIONS = {
       moodStart: [
-        { value: 'dreamy', emoji: '🌫️', title: 'Задумчивое', sub: 'Сегодня хочется чего-то мягкого и неспешного.' },
-        { value: 'calm', emoji: '🙂', title: 'Спокойное', sub: 'Ровный день, без драм и лишней спешки.' },
-        { value: 'playful', emoji: '😏', title: 'Игривое', sub: 'Есть настроение на что-то с намёком.' },
-        { value: 'tired', emoji: '🥱', title: 'Сонное', sub: 'Нужен повод выбраться в красивый вечер.' }
+        { value: 'tired-angry', emoji: '😵', title: 'устала, злая, хочуц спать, работы куча', sub: '' },
+        { value: 'okay', emoji: '🙂', title: 'терпимо, все получится', sub: '' },
+        { value: 'better-than-thought', emoji: '☺️', title: 'лучше, чем думала', sub: '' },
+        { value: 'great', emoji: '😌', title: 'отличное, прекрасно', sub: '' }
       ],
       future: [
         { value: 'yes', emoji: '💌', title: 'Да', sub: '' },
@@ -466,10 +462,10 @@
         { value: 'favorit', emoji: '🤷', title: '“Ну он же тебя покупает, думай, думай”', sub: '' }
       ],
       moodEnd: [
-        { value: 'warm', emoji: '😊', title: 'Теплее', sub: '' },
-        { value: 'intrigued', emoji: '😉', title: 'Заинтригованное', sub: '' },
-        { value: 'happy', emoji: '😄', title: 'Хорошее', sub: '' },
-        { value: 'sparkling', emoji: '✨', title: 'Очень хорошее', sub: '' }
+        { value: 'less-murder', emoji: '😊', title: 'Уже не так хочется кого-то прибить', sub: '' },
+        { value: 'intrigued-now', emoji: '😉', title: 'заинтриговал', sub: '' },
+        { value: 'much-better', emoji: '😄', title: 'намного лучше', sub: '' },
+        { value: 'all', emoji: '✨', title: 'все сразу', sub: '' }
       ]
     };
 
@@ -576,7 +572,7 @@
           <span class="emoji">${option.emoji}</span>
           <span>
             <span class="choice-title">${esc(option.title)}</span>
-            <span class="choice-sub">${esc(option.sub)}</span>
+            ${option.sub ? `<span class="choice-sub">${esc(option.sub)}</span>` : ''}
           </span>
           <span class="check">✓</span>
         </button>
@@ -664,7 +660,7 @@
           <span class="emoji">${option.emoji}</span>
           <span>
             <span class="choice-title">${esc(option.title)}</span>
-            <span class="choice-sub">${esc(option.sub)}</span>
+            ${option.sub ? `<span class="choice-sub">${esc(option.sub)}</span>` : ''}
           </span>
           <span class="check">✓</span>
         </button>
@@ -711,9 +707,8 @@
 
     function renderPalette() {
       app.innerHTML = `
-        ${frame('Дресс-код', { emoji: '🎨', text: 'Цветовая гамма' }, 'Если хочется, можно вписать желаемые оттенки. Это поле можно оставить пустым.')}
+        ${frame('Дресс-код', { emoji: '🎨', text: 'Цветовая гамма' }, 'Скажи, что мне нужно, чтобы подчеркивать тебя) Я раздобуду)')}
         <input type="text" id="palette" class="field" maxlength="120" placeholder="Например: чёрный, бордо, тёплые оттенки" value="${esc(state.palette)}" />
-        <p class="helper">Поле не обязательное — просто дополнительная подсказка.</p>
         <div class="nav">
           <button class="btn btn-sub btn-back" type="button" id="back">←</button>
           <button class="btn btn-main" type="button" id="next">Дальше</button>
@@ -728,7 +723,6 @@
       app.innerHTML = `
         ${frame('Последний штрих', { emoji: '✍️', text: 'Что-то от себя' }, 'впечатления, пожелания, угрозы?')}
         <textarea id="note" placeholder="Напиши что-нибудь от себя">${esc(state.note)}</textarea>
-        <p class="helper">поле необязательное</p>
         <div class="nav">
           <button class="btn btn-sub btn-back" type="button" id="back">←</button>
           <button class="btn btn-main" type="button" id="next">Собрать коллаж</button>
@@ -740,6 +734,9 @@
     }
 
     function moodLabel(type, value) {
+      if (type === 'moodEnd' && value === 'all') {
+        return 'Уже не так хочется кого-то прибить, заинтриговал, намного лучше';
+      }
       const found = OPTIONS[type].find(item => item.value === value);
       return found ? found.title : '—';
     }
@@ -772,14 +769,14 @@
 
     function renderFinish() {
       app.innerHTML = `
-        ${frame('Финал', { emoji: '🖼️', text: 'Готовый коллаж' }, 'Сайт собрал ретро-открытку по выбранным ответам. Её можно скачать или отправить через системное меню «Поделиться».')}
+        ${frame('Финал', { emoji: '🖼️', text: 'Готовая открытка' }, 'Её можно скачать или отправить через системное меню «Поделиться».')}
         <div class="summary-card">
           <h3>Краткий итог</h3>
           ${summaryHTML()}
           ${state.note.trim() ? `<div class="info-card" style="margin-top:16px"><strong>Что-то от себя</strong><p style="margin-top:10px; line-height:1.6">${esc(state.note.trim())}</p></div>` : ''}
         </div>
         <div class="canvas-wrap">
-          <canvas id="collageCanvas" width="1080" height="1520" aria-label="Финальный коллаж"></canvas>
+          <canvas id="collageCanvas" width="1300" height="2050" aria-label="Финальный коллаж"></canvas>
         </div>
         <div class="actions-grid">
           <button class="btn btn-main" type="button" id="download">Скачать коллаж</button>
@@ -819,10 +816,10 @@
         case 'mood1':
           renderChoiceStep({
             id: 'moodStart',
-            chip: 'Начнём с настроения',
-            emoji: '☁️',
-            title: 'Как сегодня настроение?',
-            subtitle: 'Выбери один из четырёх вариантов — просто чтобы поймать стартовую точку этого вечера.',
+            chip: 'Привет, Лена)',
+            emoji: '💭',
+            title: 'Посмотрим какое сейчас настроение',
+            subtitle: 'Увидел идею - сделал) Для начала оценим с чем имеем дело)',
             options: OPTIONS.moodStart
           });
           break;
@@ -896,6 +893,7 @@
             subtitle: 'улучшилось?)',
             options: OPTIONS.moodEnd
           });
+          { const nav = app.querySelector('.nav'); if (nav) nav.insertAdjacentHTML('beforebegin', '<p class="helper">Сам себя не похвалишь - никто не похвалит</p>'); }
           break;
         case 'message':
           renderMessage();
@@ -954,11 +952,10 @@
       const canvas = document.getElementById('collageCanvas');
       if (!canvas) return;
       const ctx = canvas.getContext('2d');
-      const [bgImg, frame1, frame2, frame3] = await Promise.all([
+      const [bgImg, handsImg, movieCollage] = await Promise.all([
         loadImage(ASSETS.backgrounds[0]),
-        loadImage(ASSETS.collageFrames[0]),
-        loadImage(ASSETS.collageFrames[1]),
-        loadImage(ASSETS.collageFrames[2])
+        loadImage(ASSETS.handsPhoto),
+        loadImage(ASSETS.movieCollage)
       ]);
 
       ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -970,13 +967,13 @@
       ctx.drawImage(bgImg, bx, by, bw, bh);
 
       const overlay = ctx.createLinearGradient(0, 0, 0, canvas.height);
-      overlay.addColorStop(0, 'rgba(30,17,14,0.58)');
-      overlay.addColorStop(1, 'rgba(30,17,14,0.72)');
+      overlay.addColorStop(0, 'rgba(31,18,15,0.48)');
+      overlay.addColorStop(1, 'rgba(31,18,15,0.62)');
       ctx.fillStyle = overlay;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      roundedRect(ctx, 70, 70, 940, 1380, 44);
-      ctx.fillStyle = 'rgba(250, 241, 228, 0.94)';
+      roundedRect(ctx, 50, 50, 1200, 1950, 46);
+      ctx.fillStyle = 'rgba(250, 241, 228, 0.95)';
       ctx.fill();
       ctx.strokeStyle = 'rgba(111,74,62,0.20)';
       ctx.lineWidth = 2;
@@ -984,29 +981,42 @@
 
       ctx.fillStyle = '#8e4f5b';
       ctx.font = '28px Georgia';
-      ctx.fillText('Письмо о далёком будущем', 120, 140);
+      ctx.fillText('Письмо о далёком будущем', 95, 115);
 
       ctx.fillStyle = '#2f1d19';
-      ctx.font = 'bold 52px Georgia';
-      ctx.fillText('18 ноября', 120, 206);
+      ctx.font = 'bold 58px Georgia';
+      ctx.fillText('18 ноября', 95, 175);
 
       ctx.fillStyle = '#5f443b';
-      ctx.font = '28px Georgia';
-      ctx.fillText('Спектакль «Империя ангелов» · 18:00', 120, 250);
+      ctx.font = '30px Georgia';
+      ctx.fillText('Спектакль «Империя ангелов» · 18:00', 95, 220);
 
       ctx.strokeStyle = 'rgba(111,74,62,0.18)';
       ctx.beginPath();
-      ctx.moveTo(120, 280);
-      ctx.lineTo(960, 280);
+      ctx.moveTo(95, 245);
+      ctx.lineTo(1160, 245);
       ctx.stroke();
 
       ctx.fillStyle = '#3b241f';
-      ctx.font = 'italic 30px Georgia';
-      let y = 330;
-      y = drawWrappedText(ctx, '«Мне кажется, я смотрел этот спектакль лет 10 назад и потом хотел пересмотреть. Пойдешь со мной?)»', 120, y, 840, 42, 4);
+      ctx.font = 'italic 34px Georgia';
+      let y = 305;
+      y = drawWrappedText(ctx, 'Надеюсь, что ты будешь махать рукой!', 95, y, 1060, 44, 3);
+      y += 10;
+      y = drawWrappedText(ctx, 'И все это можно назвать как угодно - изберательной вселенной, сродными душами, кармой. Главное, что это очень приятно)', 95, y, 1060, 44, 5);
 
-      const cardX = 120;
-      const cardW = 840;
+      const handBox = { x: 95, y: y + 20, w: 1110, h: 400 };
+      roundedRect(ctx, handBox.x, handBox.y, handBox.w, handBox.h, 28);
+      ctx.save();
+      ctx.clip();
+      const hr = Math.max(handBox.w / handsImg.width, handBox.h / handsImg.height);
+      const hw = handsImg.width * hr;
+      const hh = handsImg.height * hr;
+      ctx.drawImage(handsImg, handBox.x + (handBox.w - hw) / 2, handBox.y + (handBox.h - hh) / 2, hw, hh);
+      ctx.restore();
+      ctx.strokeStyle = 'rgba(111,74,62,0.12)';
+      roundedRect(ctx, handBox.x, handBox.y, handBox.w, handBox.h, 28);
+      ctx.stroke();
+
       const lines = [
         ['Настроение в начале', moodLabel('moodStart', state.moodStart)],
         ['Готовность планировать', futureLabel()],
@@ -1016,66 +1026,43 @@
         ['Одежда', clothesLabel()],
         ...(state.clothes === 'formal' && state.palette.trim() ? [['Цветовая гамма', state.palette.trim()]] : []),
         ['Подарок', giftLabel()],
-        ['Настроение теперь', moodLabel('moodEnd', state.moodEnd)]
+        ['Настроение теперь', moodLabel('moodEnd', state.moodEnd)],
+        ...(state.note.trim() ? [['Что-то от себя', state.note.trim()]] : [])
       ];
 
-      let blockY = 520;
-      ctx.font = 'bold 24px Georgia';
+      let blockY = handBox.y + handBox.h + 60;
+      const labelX = 95;
+      const valueX = 420;
+      const lineW = 1065;
       lines.forEach(([label, value]) => {
         ctx.fillStyle = '#6a4a40';
-        ctx.fillText(label, cardX, blockY);
+        ctx.font = 'bold 24px Georgia';
+        ctx.fillText(label, labelX, blockY);
         ctx.fillStyle = '#241613';
         ctx.font = '24px Georgia';
-        drawWrappedText(ctx, value, cardX + 310, blockY, 500, 30, 2);
+        const afterY = drawWrappedText(ctx, value, valueX, blockY, 700, 32, label === 'Что-то от себя' ? 4 : 2);
+        const bottomLineY = Math.max(blockY + 12, afterY - 8);
         ctx.strokeStyle = 'rgba(111,74,62,0.14)';
         ctx.beginPath();
-        ctx.moveTo(cardX, blockY + 16);
-        ctx.lineTo(cardX + cardW, blockY + 16);
+        ctx.moveTo(labelX, bottomLineY);
+        ctx.lineTo(labelX + lineW, bottomLineY);
         ctx.stroke();
-        ctx.font = 'bold 24px Georgia';
-        blockY += 58;
+        blockY = bottomLineY + 30;
       });
 
-      if (state.note.trim()) {
-        roundedRect(ctx, 120, 1020, 840, 170, 24);
-        ctx.fillStyle = 'rgba(255,255,255,0.50)';
-        ctx.fill();
-        ctx.fillStyle = '#6a4a40';
-        ctx.font = 'bold 24px Georgia';
-        ctx.fillText('Что-то от себя', 145, 1060);
-        ctx.fillStyle = '#2f1d19';
-        ctx.font = '22px Georgia';
-        drawWrappedText(ctx, state.note.trim(), 145, 1100, 790, 32, 4);
-      }
-
-      const frames = [frame1, frame2, frame3];
-      const framePos = [
-        { x: 105, y: 1188, w: 255, h: 190, rot: -0.08 },
-        { x: 410, y: 1162, w: 268, h: 200, rot: 0.04 },
-        { x: 715, y: 1192, w: 255, h: 190, rot: 0.09 }
-      ];
-
-      framePos.forEach((pos, i) => {
-        const img = frames[i];
-        ctx.save();
-        ctx.translate(pos.x + pos.w / 2, pos.y + pos.h / 2);
-        ctx.rotate(pos.rot);
-        roundedRect(ctx, -pos.w / 2 - 10, -pos.h / 2 - 10, pos.w + 20, pos.h + 34, 12);
-        ctx.fillStyle = 'rgba(252,250,247,.96)';
-        ctx.fill();
-        ctx.fillStyle = 'rgba(111,74,62,.14)';
-        ctx.stroke();
-        const ratio = Math.max(pos.w / img.width, pos.h / img.height);
-        const w = img.width * ratio;
-        const h = img.height * ratio;
-        ctx.save();
-        roundedRect(ctx, -pos.w / 2, -pos.h / 2, pos.w, pos.h, 8);
-        ctx.clip();
-        ctx.drawImage(img, -w / 2, -h / 2, w, h);
-        ctx.restore();
-        ctx.restore();
-      });
-
+      const collageY = blockY + 18;
+      const collageBox = { x: 95, y: collageY, w: 1110, h: 380 };
+      roundedRect(ctx, collageBox.x, collageBox.y, collageBox.w, collageBox.h, 24);
+      ctx.save();
+      ctx.clip();
+      const cr = Math.max(collageBox.w / movieCollage.width, collageBox.h / movieCollage.height);
+      const cw = movieCollage.width * cr;
+      const ch = movieCollage.height * cr;
+      ctx.drawImage(movieCollage, collageBox.x + (collageBox.w - cw) / 2, collageBox.y + (collageBox.h - ch) / 2, cw, ch);
+      ctx.restore();
+      ctx.strokeStyle = 'rgba(111,74,62,0.12)';
+      roundedRect(ctx, collageBox.x, collageBox.y, collageBox.w, collageBox.h, 24);
+      ctx.stroke();
     }
 
     function downloadCanvas() {
